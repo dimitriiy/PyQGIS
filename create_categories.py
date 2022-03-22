@@ -2,7 +2,7 @@ import random
 
 LAYER_NAME = 'POINT_LAYER'
 layer = QgsProject.instance().mapLayersByName(LAYER_NAME)[0]
-dlayer = layer.getFeatures()
+features = layer.getFeatures()
 
 def randColor():
     a = random.randint(0,255)
@@ -10,16 +10,16 @@ def randColor():
     c = random.randint(0,255)
     return QColor.fromRgb(a,b,c)
 
-def groupFeatures(key):
+def groupFeatures(attr):
     group_features = {}
-    layer.select(selected_fid)
-    for feature in dlayer:
+
+    for feature in features:
         id = feature.id()
-        zsp_id = feature[key]
-        if zsp_id in  group_features:
-            group_features[zsp_id].append(id)
+        group_by_key = feature[attr]
+        if group_by_key in  group_features:
+            group_features[group_by_key].append(id)
         else:
-            group_features[zsp_id] = [id]
+            group_features[group_by_key] = [id]
     return group_features
 
 
@@ -39,12 +39,9 @@ def init(groupBy):
         category = QgsRendererCategory(classes, symbol, str(label))
         categories.append(category)
 
-    # Field name
     expression = groupBy
-    # Set the categorized renderer
     renderer = QgsCategorizedSymbolRenderer(expression, categories)
     layer.setRenderer(renderer)
-    # Refresh layer
     layer.triggerRepaint()
 
 
